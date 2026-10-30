@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adventskalender</title>
+  <meta name="theme-color" content="#0b1c2c">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎄</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Lora:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="snow" aria-hidden="true"></div>
+  <div class="lights" id="lights" aria-hidden="true"></div>
+
+  <header class="hero">
+    <p class="eyebrow">✦ Advent <span id="jahr"></span> ✦</p>
+    <h1>Adventskalender</h1>
+    <p class="sub" id="untertitel"></p>
+  </header>
+
+  <main class="wrap">
+    <!-- Vor dem 1. Dezember -->
+    <section id="countdown" class="card countdown hidden">
+      <div class="big-star" aria-hidden="true">★</div>
+      <h2>Gleich geht's los!</h2>
+      <p>Das erste Türchen öffnet sich am <b>1. Dezember</b>.</p>
+      <div class="clock" role="timer" aria-live="off">
+        <div><b id="cd-tage">0</b><span>Tage</span></div>
+        <div><b id="cd-std">0</b><span>Std</span></div>
+        <div><b id="cd-min">0</b><span>Min</span></div>
+        <div><b id="cd-sek">0</b><span>Sek</span></div>
+      </div>
+    </section>
+
+    <!-- Das Bild des gewählten Tages -->
+    <section id="buehne" class="card buehne hidden">
+      <div class="buehne-kopf">
+        <div class="tag-badge" id="tag-nummer">1</div>
+        <div>
+          <p class="eyebrow" id="tag-label">Heutiges Türchen</p>
+          <h2 id="tag-datum">1. Dezember</h2>
+        </div>
+      </div>
+
+      <div class="rahmen" id="rahmen">
+        <a id="bild-link" class="bild-link" target="_blank" rel="noopener" title="Bild in voller Größe öffnen">
+          <img id="bild" alt="">
+        </a>
+        <div class="rahmen-info" id="rahmen-info"></div>
+      </div>
+
+      <nav class="steuerung" aria-label="Tage wechseln">
+        <button class="knopf" id="zurueck" type="button">‹ Vortag</button>
+        <button class="knopf leise hidden" id="heute" type="button">Heute</button>
+        <button class="knopf" id="vor" type="button">Nächster Tag ›</button>
+      </nav>
+    </section>
+
+    <section class="alle">
+      <h2 class="abschnitt">Alle Türchen</h2>
+      <div class="tueren" id="tueren"></div>
+      <p class="hinweis" id="hinweis" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer class="fuss">Frohe Weihnachten! 🎄</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

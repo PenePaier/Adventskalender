@@ -172,6 +172,53 @@ p { margin: 0; }
 .card > * { position: relative; }
 .card .eyebrow { color: var(--gold-dunkel); }
 
+/* ---------- Code-Abfrage ---------- */
+.fuer {
+  font-family: var(--titel);
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  line-height: 1.1;
+  color: var(--gold);
+}
+.zugang {
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 32px 22px 30px 60px;
+}
+.zugang h2 { font-family: var(--titel); font-size: 2.2rem; color: var(--rot); margin-bottom: 6px; }
+.code-form { margin-top: 20px; }
+.code-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.code-form input {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font: 600 1.1rem var(--serif);
+  text-align: center;
+  color: var(--tinte);
+  background: #fff;
+  border: 2px solid var(--gold-dunkel);
+  border-radius: 12px;
+}
+.code-form input:focus { outline: 3px solid var(--gold); outline-offset: 1px; }
+.code-fehler { min-height: 1.5em; margin-top: 12px; color: var(--rot); font-weight: 600; }
+.wechsel { margin-top: 18px; text-align: center; }
+.text-knopf {
+  padding: 4px;
+  font: inherit;
+  color: var(--gedaempft);
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.text-knopf:hover { color: var(--creme); }
+.text-knopf:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
 /* ---------- Countdown ---------- */
 .countdown {
   text-align: center;
@@ -403,7 +450,7 @@ p { margin: 0; }
   body { font-size: 16px; }
   .tueren { grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .card { padding: 18px 16px; }
-  .buehne, .countdown { padding-left: 48px; }
+  .buehne, .countdown, .zugang { padding-left: 48px; }
   .card::before { left: 20px; width: 12px; }
   .card::after { left: 6px; }
   .tag-badge { width: 50px; height: 50px; font-size: 1.3rem; }

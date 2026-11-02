@@ -1,7 +1,7 @@
 // ================= Einstellungen =================
 const JAHR = 2026;          // In welchem Dezember der Kalender läuft
 const ZEITZONE = "Europe/Berlin"; // Um Mitternacht dieser Zeitzone öffnet sich das nächste Türchen
-const ORDNER = "bilder";    // Ordner mit Aufgabe_01.jpg … Aufgabe_24.jpg
+const ORDNER = "bilder";    // Pro Kalender ein Unterordner: bilder/<code>/Aufgabe_01.jpg
 const ENDUNGEN = ["jpg", "jpeg", "png", "webp", "gif", "JPG", "JPEG", "PNG", "WEBP"];
 // =================================================
 
@@ -17,6 +17,7 @@ let offen = 0;      // Anzahl geöffneter Türchen (0 = vor dem 1. Dezember)
 let aktuell = 0;    // gerade angezeigter Tag
 let zeitVersatz = 0; // Abweichung der Geräteuhr von der echten Zeit (ms)
 const ladeZeit = Date.now();
+let kalenderOrdner = ""; // Bilder-Ordner des gerade geöffneten Kalenders
 
 // 1. Dezember, 00:00 Uhr deutscher Zeit (im Winter gilt MEZ = UTC+1)
 const START = Date.UTC(JAHR, 10, 30, 23);
@@ -36,9 +37,11 @@ async function synchronisiereZeit() {
   }
 }
 
-// Aktueller Zeitpunkt in ms. Zum Testen: ?datum=2026-12-05 an die Adresse hängen
+// Aktueller Zeitpunkt in ms. Zum Testen auf dem eigenen Rechner: ?datum=2026-12-05 an die Adresse hängen.
+// Auf der echten Website wird das ignoriert, sonst könnte jeder damit alle Türchen öffnen.
+const TESTMODUS = ["localhost", "127.0.0.1"].includes(location.hostname);
 function jetztMs() {
-  const p = new URLSearchParams(location.search).get("datum");
+  const p = TESTMODUS ? new URLSearchParams(location.search).get("datum") : null;
   const m = p && p.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) return Date.UTC(+m[1], m[2] - 1, +m[3], 11) + (Date.now() - ladeZeit);
   return Date.now() + zeitVersatz;
@@ -76,7 +79,7 @@ function bildUrl(tag) {
   if (bildCache[tag]) return bildCache[tag];
   const namen = [`Aufgabe_${String(tag).padStart(2, "0")}`];
   if (tag < 10) namen.push(`Aufgabe_${tag}`);
-  const kandidaten = namen.flatMap((n) => ENDUNGEN.map((e) => `${ORDNER}/${n}.${e}`));
+  const kandidaten = namen.flatMap((n) => ENDUNGEN.map((e) => `${kalenderOrdner}/${n}.${e}`));
 
   bildCache[tag] = new Promise((resolve) => {
     let i = 0;
@@ -95,6 +98,53 @@ function bildUrl(tag) {
     probiere();
   });
   return bildCache[tag];
+}
+
+// ---------- Code merken ----------
+// Der Speicher kann im privaten Modus gesperrt sein, dann wird eben jedes Mal gefragt.
+const CODE_SPEICHER = "adventskalender-code";
+function gemerkterCode() {
+  try { return localStorage.getItem(CODE_SPEICHER); } catch { return null; }
+}
+function merkeCode(code) {
+  try { localStorage.setItem(CODE_SPEICHER, code); } catch {}
+}
+function vergissCode() {
+  try { localStorage.removeItem(CODE_SPEICHER); } catch {}
+}
+
+// ---------- Code prüfen und Kalender öffnen ----------
+const CODE_FALSCH = "Diesen Code kennen wir leider nicht. Schau nochmal genau hin!";
+
+// Der Code ist der Name des Unterordners. Gibt die Fehlermeldung zurück, oder "" bei Erfolg.
+async function oeffneKalender(eingabe) {
+  const code = eingabe.trim().toLowerCase();
+  if (!/^[a-z0-9_-]+$/.test(code)) return CODE_FALSCH;
+
+  kalenderOrdner = `${ORDNER}/${code}`;
+  let name = "";
+  try {
+    const antwort = await fetch(`${kalenderOrdner}/name.txt`, { cache: "no-cache" });
+    if (antwort.ok) {
+      name = (await antwort.text()).split(/\r?\n/)[0].trim().slice(0, 40);
+    } else if (!(await bildUrl(1))) {
+      return CODE_FALSCH;
+    }
+  } catch {
+    return "Keine Verbindung. Bitte versuch es gleich nochmal.";
+  }
+
+  if (name) {
+    $("fuer").textContent = `für ${name}`;
+    $("fuer").classList.remove("hidden");
+    document.title = `Adventskalender für ${name}`;
+  }
+  merkeCode(code);
+  await synchronisiereZeit();
+  $("zugang").classList.add("hidden");
+  $("kalender").classList.remove("hidden");
+  start();
+  return "";
 }
 
 // ---------- Bild eines Tages anzeigen ----------
@@ -236,7 +286,6 @@ function lichterkette() {
 // ---------- Start ----------
 function start() {
   offen = berechneOffen();
-  $("jahr").textContent = JAHR;
 
   if (offen === 0) {
     $("untertitel").textContent = "24 Türchen warten darauf, geöffnet zu werden.";
@@ -265,6 +314,20 @@ function start() {
   zeige(gewuenscht >= 1 && gewuenscht <= offen ? gewuenscht : offen);
 }
 
+$("code-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const knopf = e.target.querySelector("button");
+  knopf.disabled = true;
+  $("code-fehler").textContent = "";
+  $("code-fehler").textContent = await oeffneKalender($("code").value);
+  knopf.disabled = false;
+});
+// Code vergessen und neu laden führt zurück zur Code-Abfrage
+$("abmelden").addEventListener("click", () => {
+  vergissCode();
+  location.replace(location.pathname + location.search);
+});
+
 $("zurueck").addEventListener("click", () => aktuell > 1 && zeige(aktuell - 1));
 $("vor").addEventListener("click", () => aktuell < offen && zeige(aktuell + 1));
 $("heute").addEventListener("click", () => zeige(offen));
@@ -284,6 +347,19 @@ setInterval(() => {
   }
 }, 60 * 1000);
 
+$("jahr").textContent = JAHR;
 lichterkette();
 schnee();
-synchronisiereZeit().then(start);
+
+// Wer schon einmal einen gültigen Code eingegeben hat, landet direkt im Kalender
+async function oeffneGemerktenKalender() {
+  const code = gemerkterCode();
+  if (!code) return;
+  $("zugang").classList.add("hidden");
+  const fehler = await oeffneKalender(code);
+  if (!fehler) return;
+  $("zugang").classList.remove("hidden");
+  if (fehler === CODE_FALSCH) vergissCode(); // z. B. Ordner wurde umbenannt
+  else $("code-fehler").textContent = fehler;
+}
+oeffneGemerktenKalender();

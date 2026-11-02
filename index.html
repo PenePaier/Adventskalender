@@ -18,10 +18,25 @@
   <header class="hero">
     <p class="eyebrow">✦ Advent <span id="jahr"></span> ✦</p>
     <h1>Adventskalender</h1>
+    <p class="fuer hidden" id="fuer"></p>
     <p class="sub" id="untertitel"></p>
   </header>
 
   <main class="wrap">
+    <!-- Code-Abfrage: nur solange auf diesem Gerät noch kein Code gespeichert ist -->
+    <section id="zugang" class="card zugang">
+      <div class="big-star" aria-hidden="true">★</div>
+      <h2>Dein Kalender wartet!</h2>
+      <p>Gib deinen Code ein, um deinen persönlichen Kalender zu öffnen.</p>
+      <form id="code-form" class="code-form">
+        <label for="code">Dein Code</label>
+        <input id="code" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" required autofocus>
+        <button class="knopf" type="submit">Kalender öffnen</button>
+        <p class="code-fehler" id="code-fehler" role="alert"></p>
+      </form>
+    </section>
+
+    <div id="kalender" class="hidden">
     <!-- Vor dem 1. Dezember -->
     <section id="countdown" class="card countdown hidden">
       <div class="big-star" aria-hidden="true">★</div>
@@ -63,7 +78,9 @@
       <h2 class="abschnitt">Alle Türchen</h2>
       <div class="tueren" id="tueren"></div>
       <p class="hinweis" id="hinweis" aria-live="polite"></p>
+      <p class="wechsel"><button class="text-knopf" id="abmelden" type="button">Anderen Code eingeben</button></p>
     </section>
+    </div>
   </main>
 
   <footer class="fuss">Frohe Weihnachten! 🎄</footer>

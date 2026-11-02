@@ -58,7 +58,7 @@ function heute() {
 
 function berechneOffen() {
   const h = heute();
-  if (h.jahr < JAHR || (h.jahr === JAHR && h.monat < 12)) return 0;
+  if (h.jahr < JAHR || (h.jahr === JAHR && h.monat < 11)) return 0; //Hier 12 eintragen für Dezember
   if (h.jahr > JAHR) return 24;
   return Math.min(h.tag, 24);
 }
